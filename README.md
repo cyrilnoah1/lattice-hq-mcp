@@ -46,7 +46,7 @@ This MCP server provides access to the following Lattice HQ capabilities:
 No installation required! Just use npx to run the latest version:
 
 ```bash
-npx lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
+LATTICE_API_URL=https://your-company.latticehq.com npx lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
 ```
 
 ### Method 2: Global Installation
@@ -55,7 +55,7 @@ npx lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
 npm install -g lattice-hq-mcp-server
 
 # Run the server
-lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
+LATTICE_API_URL=https://your-company.latticehq.com lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
 ```
 
 ### Method 3: Local Development
@@ -122,7 +122,10 @@ Add the following to your Claude Desktop configuration file:
   "mcpServers": {
     "lattice-hq": {
       "command": "npx",
-      "args": ["-y", "lattice-hq-mcp-server", "--api-key=YOUR-TOKEN", "--stdio"]
+      "args": ["-y", "lattice-hq-mcp-server", "--api-key=YOUR-TOKEN", "--stdio"],
+      "env": {
+        "LATTICE_API_URL": "https://your-company.latticehq.com"
+      }
     }
   }
 }

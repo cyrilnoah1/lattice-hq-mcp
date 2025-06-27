@@ -49,11 +49,13 @@ OPTIONS:
   --help, -h         Show this help message
 
 EXAMPLES:
-  # Run with API key
-  npx lattice-hq-mcp-server --api-key=your-token --stdio
+  # Run with API key and URL
+  LATTICE_API_URL=https://your-company.latticehq.com npx lattice-hq-mcp-server --api-key=your-token --stdio
   
-  # Run with environment variable
-  LATTICE_API_TOKEN=your-token npx lattice-hq-mcp-server --stdio
+  # Run with environment variables
+  export LATTICE_API_TOKEN=your-token
+  export LATTICE_API_URL=https://your-company.latticehq.com
+  npx lattice-hq-mcp-server --stdio
 
 CONFIGURATION:
 Add to your MCP client config:
@@ -61,7 +63,10 @@ Add to your MCP client config:
   "mcpServers": {
     "lattice-hq": {
       "command": "npx",
-      "args": ["-y", "lattice-hq-mcp-server", "--api-key=YOUR-TOKEN", "--stdio"]
+      "args": ["-y", "lattice-hq-mcp-server", "--api-key=YOUR-TOKEN", "--stdio"],
+      "env": {
+        "LATTICE_API_URL": "https://your-company.latticehq.com"
+      }
     }
   }
 }
