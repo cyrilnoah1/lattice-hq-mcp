@@ -7,7 +7,6 @@ import {
 } from "@modelcontextprotocol/sdk/types.js";
 
 import { LatticeClient, ILatticeClient } from "./lattice/client.js";
-import { MockLatticeClient } from "./lattice/mock-client.js";
 import { createLatticeTools } from "./lattice/tools.js";
 
 // Parse command line arguments
@@ -55,9 +54,6 @@ EXAMPLES:
   
   # Run with environment variable
   LATTICE_API_TOKEN=your-token npx lattice-hq-mcp-server --stdio
-  
-  # Run in mock mode (no API key needed)
-  npx lattice-hq-mcp-server --stdio
 
 CONFIGURATION:
 Add to your MCP client config:
@@ -88,18 +84,15 @@ async function main() {
     process.exit(1);
   }
 
-  // Initialize Lattice client (mock mode if no API key)
-  let latticeClient: ILatticeClient;
-  const useMockMode = !config.apiKey;
-
-  if (useMockMode) {
-    console.error("⚠️  No API token provided - running in MOCK MODE");
-    console.error("   Set LATTICE_API_TOKEN or use --api-key for real data");
-    latticeClient = new MockLatticeClient();
-  } else {
-    console.error("✅ Using Lattice API with provided token");
-    latticeClient = new LatticeClient(config.apiKey);
+  // Initialize Lattice client
+  if (!config.apiKey) {
+    console.error("❌ Error: API token is required");
+    console.error("   Set LATTICE_API_TOKEN or use --api-key");
+    process.exit(1);
   }
+
+  console.error("✅ Using Lattice API with provided token");
+  const latticeClient: ILatticeClient = new LatticeClient(config.apiKey);
 
   // Create MCP server
   const server = new Server(
@@ -140,7 +133,7 @@ async function main() {
   const transport = new StdioServerTransport();
   await server.connect(transport);
   
-  console.error(`🚀 Lattice HQ MCP Server running ${useMockMode ? '(Mock Mode)' : '(Live Mode)'}`);
+  console.error(`🚀 Lattice HQ MCP Server running`);
 }
 
 // Handle errors

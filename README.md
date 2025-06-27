@@ -46,19 +46,7 @@ This MCP server provides access to the following Lattice HQ capabilities:
 
 The easiest way to use this MCP server is with `npx` - no local installation required!
 
-**For Mock Data Testing:**
-```json
-{
-  "mcpServers": {
-    "lattice-hq": {
-      "command": "npx",
-      "args": ["-y", "lattice-hq-mcp-server", "--stdio"]
-    }
-  }
-}
-```
-
-**For Real Lattice API:**
+**Configuration:**
 ```json
 {
   "mcpServers": {
@@ -106,27 +94,17 @@ If you don't see "Integrations" under Settings, this usually means:
 - Email: support@lattice.com
 - Request API access for your account/plan
 
-### Method 3: Test with Mock Data (No API Token Required)
-If you can't access the real API, you can test the MCP server with mock data:
-- Simply run the server without setting `LATTICE_API_TOKEN`
-- The server will automatically use realistic mock data
-- Perfect for testing integrations and development
+
 
 ## Usage
 
 ### Running the Server
 
-**With Real API Token:**
+**With API Token:**
 ```bash
 export LATTICE_API_TOKEN=your_token_here
 npm start
 ```
-
-**With Mock Data (for testing):**
-```bash
-npm start
-```
-The server will automatically detect if no API token is set and use mock data.
 
 ### Using with Claude Desktop
 
@@ -136,19 +114,7 @@ Add the following to your Claude Desktop configuration file:
 **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
 **Linux**: `~/.config/Claude/claude_desktop_config.json`
 
-**For Mock Data Testing (no API token required):**
-```json
-{
-  "mcpServers": {
-    "lattice-hq": {
-      "command": "node",
-      "args": ["/path/to/lattice-hq-mcp/dist/index.js"]
-    }
-  }
-}
-```
-
-**For Real Lattice API:**
+**Configuration:**
 ```json
 {
   "mcpServers": {
