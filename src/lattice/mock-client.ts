@@ -1,5 +1,5 @@
 // Mock client for testing without real Lattice API access
-import { User, Goal, ReviewCycle, Feedback } from './client.js';
+import { User, Goal, ReviewCycle, Feedback, ILatticeClient } from './client.js';
 
 export interface MockLatticeApiResponse<T = any> {
   data: T;
@@ -14,7 +14,7 @@ const mockUsers: User[] = [
     email: "john.doe@company.com",
     firstName: "John",
     lastName: "Doe",
-    title: "Software Engineer",
+    title: "Senior Software Engineer",
     department: "Engineering",
     managerId: "user3",
     isActive: true
@@ -36,6 +36,7 @@ const mockUsers: User[] = [
     lastName: "Johnson",
     title: "Engineering Manager",
     department: "Engineering",
+    managerId: undefined,
     isActive: true
   }
 ];
@@ -124,7 +125,7 @@ const mockUpdates = [
   }
 ];
 
-class MockLatticeClient {
+export class MockLatticeClient implements ILatticeClient {
   // User operations
   async getUsers(): Promise<User[]> {
     console.log("🎭 Mock: Getting all users");
@@ -236,6 +237,4 @@ class MockLatticeClient {
     console.log("🎭 Mock: Getting current user");
     return mockUsers[0]; // Return first user as "current user"
   }
-}
-
-export const mockLatticeClient = new MockLatticeClient(); 
+} 

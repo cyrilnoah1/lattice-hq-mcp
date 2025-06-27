@@ -1,13 +1,4 @@
 const LATTICE_API_URL = process.env.LATTICE_API_URL || "https://tide.latticehq.com";
-const LATTICE_API_TOKEN = process.env.LATTICE_API_TOKEN;
-
-// Only throw error if we're actually trying to use the real client
-// This will be checked when the client is actually instantiated and used
-function checkApiToken() {
-  if (!LATTICE_API_TOKEN) {
-    throw new Error("LATTICE_API_TOKEN environment variable is required");
-  }
-}
 
 export interface LatticeApiResponse<T = any> {
   data: T;
@@ -55,16 +46,43 @@ export interface Feedback {
   createdDate: string;
 }
 
-class LatticeClient {
+// Common interface for both real and mock clients
+export interface ILatticeClient {
+  getUsers(): Promise<User[]>;
+  getUser(userId: string): Promise<User>;
+  getUserDirectReports(userId: string): Promise<User[]>;
+  getGoals(): Promise<Goal[]>;
+  getGoal(goalId: string): Promise<Goal>;
+  getUserGoals(userId: string): Promise<Goal[]>;
+  getReviewCycles(): Promise<ReviewCycle[]>;
+  getReviewCycle(cycleId: string): Promise<ReviewCycle>;
+  getReviewCycleReviewees(cycleId: string): Promise<User[]>;
+  getFeedbacks(): Promise<Feedback[]>;
+  getFeedback(feedbackId: string): Promise<Feedback>;
+  getDepartments(): Promise<any[]>;
+  getDepartment(departmentId: string): Promise<any>;
+  getUpdates(): Promise<any[]>;
+  getUpdate(updateId: string): Promise<any>;
+  getMe(): Promise<User>;
+}
+
+export class LatticeClient implements ILatticeClient {
+  private apiToken: string;
+
+  constructor(apiToken?: string) {
+    this.apiToken = apiToken || process.env.LATTICE_API_TOKEN || '';
+    if (!this.apiToken) {
+      throw new Error("LATTICE_API_TOKEN is required");
+    }
+  }
+
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    checkApiToken(); // Check token only when making actual requests
-    
     const url = `${LATTICE_API_URL}${endpoint}`;
     
     const response = await fetch(url, {
       ...options,
       headers: {
-        "Authorization": `Bearer ${LATTICE_API_TOKEN}`,
+        "Authorization": `Bearer ${this.apiToken}`,
         "Content-Type": "application/json",
         ...options.headers,
       },
@@ -163,6 +181,4 @@ class LatticeClient {
     const response = await this.makeRequest<LatticeApiResponse<User>>("/v1/me");
     return response.data;
   }
-}
-
-export const latticeClient = new LatticeClient(); 
+} 

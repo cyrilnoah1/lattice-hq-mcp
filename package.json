@@ -1,20 +1,33 @@
 {
   "name": "lattice-hq-mcp-server",
   "version": "0.0.1",
-  "description": "MCP Server for Lattice HQ API",
+  "description": "MCP Server for Lattice HQ API - Access goals, users, reviews, and feedback",
+  "keywords": ["mcp", "lattice", "hr", "performance", "model-context-protocol", "claude", "cursor"],
+  "author": "Your Name <your.email@example.com>",
   "license": "MIT",
+  "homepage": "https://github.com/your-username/lattice-hq-mcp",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/your-username/lattice-hq-mcp.git"
+  },
+  "bugs": {
+    "url": "https://github.com/your-username/lattice-hq-mcp/issues"
+  },
   "type": "module",
   "bin": {
     "lattice-hq-mcp-server": "dist/index.js"
   },
   "files": [
-    "dist"
+    "dist",
+    "README.md",
+    "LICENSE"
   ],
   "scripts": {
     "build": "tsc && chmod +x dist/*.js",
     "prepare": "npm run build",
     "watch": "tsc --watch",
-    "dev": "npm run build && node dist/index.js"
+    "dev": "npm run build && node dist/index.js",
+    "prepublishOnly": "npm run build"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.7.0"
@@ -22,5 +35,8 @@
   "devDependencies": {
     "@types/node": "^22",
     "typescript": "^5.8.2"
+  },
+  "engines": {
+    "node": ">=16.0.0"
   }
 } 

@@ -42,6 +42,36 @@ This MCP server provides access to the following Lattice HQ capabilities:
 
 ## Installation
 
+### Quick Start with NPX (Recommended)
+
+The easiest way to use this MCP server is with `npx` - no local installation required!
+
+**For Mock Data Testing:**
+```json
+{
+  "mcpServers": {
+    "lattice-hq": {
+      "command": "npx",
+      "args": ["-y", "lattice-hq-mcp-server", "--stdio"]
+    }
+  }
+}
+```
+
+**For Real Lattice API:**
+```json
+{
+  "mcpServers": {
+    "lattice-hq": {
+      "command": "npx",
+      "args": ["-y", "lattice-hq-mcp-server", "--api-key=YOUR-TOKEN", "--stdio"]
+    }
+  }
+}
+```
+
+### Manual Installation (Alternative)
+
 1. Clone this repository:
 ```bash
 git clone <repository-url>
@@ -53,18 +83,7 @@ cd lattice-hq-mcp
 npm install
 ```
 
-3. Create a `.env` file in the root directory:
-```bash
-cp .env.example .env
-```
-
-4. Configure your environment variables in `.env`:
-```bash
-LATTICE_API_URL=https://api.latticehq.com
-LATTICE_API_TOKEN=your_api_token_here
-```
-
-5. Build the project:
+3. Build the project:
 ```bash
 npm run build
 ```
