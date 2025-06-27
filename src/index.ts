@@ -66,7 +66,7 @@ Add to your MCP client config:
   }
 }
 
-For more information, visit: https://github.com/your-username/lattice-hq-mcp
+For more information, visit: https://github.com/cyrilnoah1/lattice-hq-mcp
 `);
 }
 
