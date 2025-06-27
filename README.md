@@ -99,12 +99,13 @@ If you don't see "Integrations" under Settings, this usually means:
 **With API Token:**
 ```bash
 export LATTICE_API_TOKEN=your_token_here
+export LATTICE_API_URL=https://your-company.latticehq.com
 lattice-hq-mcp-server --stdio
 ```
 
 Or inline:
 ```bash
-lattice-hq-mcp-server --api-key=your_token_here --stdio
+LATTICE_API_URL=https://your-company.latticehq.com lattice-hq-mcp-server --api-key=your_token_here --stdio
 ```
 
 ### Using with Claude Desktop
@@ -135,7 +136,7 @@ Add the following to your Claude Desktop configuration file:
       "command": "node",
       "args": ["/path/to/lattice-hq-mcp/dist/index.js"],
       "env": {
-        "LATTICE_API_URL": "https://api.latticehq.com",
+        "LATTICE_API_URL": "https://your-company.latticehq.com",
         "LATTICE_API_TOKEN": "your_api_token_here"
       }
     }
@@ -182,7 +183,7 @@ This server follows the standard MCP protocol and can be used with any MCP-compa
 You can configure the server using environment variables:
 
 - `LATTICE_API_TOKEN`: Your Lattice API token (required)
-- `LATTICE_API_URL`: Lattice API base URL (optional, defaults to https://tide.latticehq.com)
+- `LATTICE_API_URL`: Lattice API base URL (required)
 
 ## Development
 

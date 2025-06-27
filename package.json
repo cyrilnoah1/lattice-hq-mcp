@@ -1,6 +1,6 @@
 {
   "name": "lattice-hq-mcp-server",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "MCP Server for Lattice HQ API - Access goals, users, reviews, and feedback",
   "keywords": ["mcp", "lattice", "hr", "performance", "model-context-protocol", "claude", "cursor"],
   "author": "Cyril Noah",

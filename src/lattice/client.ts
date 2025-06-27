@@ -1,4 +1,4 @@
-const LATTICE_API_URL = process.env.LATTICE_API_URL || "https://tide.latticehq.com";
+const LATTICE_API_URL = process.env.LATTICE_API_URL;
 
 export interface LatticeApiResponse<T = any> {
   data: T;
@@ -77,6 +77,9 @@ export class LatticeClient implements ILatticeClient {
   }
 
   private async makeRequest<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    if (!LATTICE_API_URL) {
+      throw new Error("LATTICE_API_URL environment variable is required");
+    }
     const url = `${LATTICE_API_URL}${endpoint}`;
     
     const response = await fetch(url, {
