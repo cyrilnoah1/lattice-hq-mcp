@@ -1,0 +1,26 @@
+{
+  "name": "lattice-hq-mcp-server",
+  "version": "0.0.1",
+  "description": "MCP Server for Lattice HQ API",
+  "license": "MIT",
+  "type": "module",
+  "bin": {
+    "lattice-hq-mcp-server": "dist/index.js"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsc && chmod +x dist/*.js",
+    "prepare": "npm run build",
+    "watch": "tsc --watch",
+    "dev": "npm run build && node dist/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "1.7.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22",
+    "typescript": "^5.8.2"
+  }
+} 

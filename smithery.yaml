@@ -1,0 +1,23 @@
+startCommand:
+  type: stdio
+  configSchema:
+    type: object
+    required:
+      - latticeApiToken
+    properties:
+      latticeApiToken:
+        type: string
+        description: Your Lattice HQ API token
+      latticeApiUrl:
+        type: string
+        description: Lattice API URL (defaults to https://api.latticehq.com)
+        default: https://api.latticehq.com
+  commandFunction: |
+    (config) => ({
+      command: 'node',
+      args: ['dist/index.js'],
+      env: {
+        LATTICE_API_URL: config.latticeApiUrl || 'https://api.latticehq.com',
+        LATTICE_API_TOKEN: config.latticeApiToken
+      }
+    }) 
