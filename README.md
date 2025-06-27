@@ -42,9 +42,78 @@ This MCP server provides access to the following Lattice HQ capabilities:
 
 ## Installation
 
-### Quick Start with NPX (Recommended)
+### Method 1: Using NPX (Recommended)
+No installation required! Just use npx to run the latest version:
 
-The easiest way to use this MCP server is with `npx` - no local installation required!
+```bash
+npx lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
+```
+
+### Method 2: Global Installation
+```bash
+# Install globally
+npm install -g lattice-hq-mcp-server
+
+# Run the server
+lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
+```
+
+### Method 3: Local Development
+```bash
+# Clone the repository
+git clone https://github.com/your-username/lattice-hq-mcp.git
+cd lattice-hq-mcp
+
+# Install dependencies
+npm install
+
+# Build the project
+npm run build
+
+# Run the server
+npm run dev
+```
+
+## Getting Your Lattice API Token
+
+### Method 1: Through Lattice Settings
+1. Log in to your Lattice HQ account
+2. Go to Settings → Integrations → API (if available)
+3. Generate a new API token
+4. Copy the token and add it to your configuration
+
+### Method 2: Contact Lattice Support
+If you don't see "Integrations" under Settings, this usually means:
+- Your plan doesn't include API access (typically Enterprise only)  
+- You don't have admin permissions
+- API access needs to be enabled for your account
+
+**Contact Lattice Support:**
+- Email: support@lattice.com
+- Request API access for your account/plan
+
+## Usage
+
+### Running the Server
+
+**With API Token:**
+```bash
+export LATTICE_API_TOKEN=your_token_here
+lattice-hq-mcp-server --stdio
+```
+
+Or inline:
+```bash
+lattice-hq-mcp-server --api-key=your_token_here --stdio
+```
+
+### Using with Claude Desktop
+
+Add the following to your Claude Desktop configuration file:
+
+**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+**Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 **Configuration:**
 ```json
@@ -57,62 +126,6 @@ The easiest way to use this MCP server is with `npx` - no local installation req
   }
 }
 ```
-
-### Manual Installation (Alternative)
-
-1. Clone this repository:
-```bash
-git clone <repository-url>
-cd lattice-hq-mcp
-```
-
-2. Install dependencies:
-```bash
-npm install
-```
-
-3. Build the project:
-```bash
-npm run build
-```
-
-## Getting Your Lattice API Token
-
-### Method 1: Through Lattice Settings
-1. Log in to your Lattice HQ account
-2. Go to Settings → Integrations → API (if available)
-3. Generate a new API token
-4. Copy the token and add it to your `.env` file
-
-### Method 2: Contact Lattice Support
-If you don't see "Integrations" under Settings, this usually means:
-- Your plan doesn't include API access (typically Enterprise only)
-- You don't have admin permissions
-- API access needs to be enabled for your account
-
-**Contact Lattice Support:**
-- Email: support@lattice.com
-- Request API access for your account/plan
-
-
-
-## Usage
-
-### Running the Server
-
-**With API Token:**
-```bash
-export LATTICE_API_TOKEN=your_token_here
-npm start
-```
-
-### Using with Claude Desktop
-
-Add the following to your Claude Desktop configuration file:
-
-**macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
-**Linux**: `~/.config/Claude/claude_desktop_config.json`
 
 **Configuration:**
 ```json
@@ -164,79 +177,45 @@ This server follows the standard MCP protocol and can be used with any MCP-compa
 - `lattice_get_updates` - Get all updates
 - `lattice_get_update` - Get update by ID
 
-## Example Usage with AI
+## Configuration
 
-Once connected to an AI assistant through MCP, you can ask questions like:
+You can configure the server using environment variables:
 
-- "Show me all users in the engineering department"
-- "What are John Doe's current goals?"
-- "Get the status of the Q4 review cycle"
-- "Show me recent feedback for my team"
-- "Who reports to the VP of Engineering?"
+- `LATTICE_API_TOKEN`: Your Lattice API token (required)
+- `LATTICE_API_URL`: Lattice API base URL (optional, defaults to https://tide.latticehq.com)
 
 ## Development
 
-### Project Structure
-
-```
-src/
-├── lattice/
-│   ├── client.ts      # Lattice API client
-│   └── tools.ts       # MCP tool definitions
-└── index.ts           # Main MCP server
-```
-
-### Building
-
 ```bash
+# Install dependencies
+npm install
+
+# Build in watch mode
+npm run watch
+
+# Run development server
+npm run dev
+
+# Build for production
 npm run build
 ```
-
-### Development Mode
-
-```bash
-npm run watch
-```
-
-## Error Handling
-
-The server includes comprehensive error handling for:
-- Invalid API tokens
-- Network connectivity issues
-- Invalid user/goal/cycle IDs
-- API rate limits
-- Malformed requests
-
-## Security
-
-- API tokens are required and validated
-- All API calls use HTTPS
-- Environment variables are used for sensitive configuration
-- Input validation on all tool parameters
 
 ## Contributing
 
 1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests if applicable
-5. Submit a pull request
+2. Create your feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add some amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-MIT License - see LICENSE file for details
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ## Support
 
-For issues related to:
-- This MCP server: Open an issue in this repository
-- Lattice HQ API: Contact Lattice support
-- MCP protocol: See the [MCP documentation](https://modelcontextprotocol.io)
+If you encounter any issues:
 
-## Changelog
-
-### v0.0.1
-- Initial release
-- Support for all major Lattice HQ API endpoints
-- Full MCP protocol compliance
-- Comprehensive error handling 
+1. Check the [GitHub Issues](https://github.com/your-username/lattice-hq-mcp/issues)
+2. Create a new issue with details about your problem
+3. Include your Node.js version, operating system, and any error messages 
