@@ -3,15 +3,15 @@
   "version": "0.0.1",
   "description": "MCP Server for Lattice HQ API - Access goals, users, reviews, and feedback",
   "keywords": ["mcp", "lattice", "hr", "performance", "model-context-protocol", "claude", "cursor"],
-  "author": "Your Name <your.email@example.com>",
+  "author": "Cyril Noah",
   "license": "MIT",
-  "homepage": "https://github.com/your-username/lattice-hq-mcp",
+  "homepage": "https://github.com/cyrilnoah1/lattice-hq-mcp",
   "repository": {
     "type": "git",
-    "url": "https://github.com/your-username/lattice-hq-mcp.git"
+    "url": "https://github.com/cyrilnoah1/lattice-hq-mcp.git"
   },
   "bugs": {
-    "url": "https://github.com/your-username/lattice-hq-mcp/issues"
+    "url": "https://github.com/cyrilnoah1/lattice-hq-mcp/issues"
   },
   "type": "module",
   "bin": {

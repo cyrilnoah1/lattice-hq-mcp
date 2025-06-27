@@ -61,7 +61,7 @@ lattice-hq-mcp-server --api-key=YOUR-TOKEN --stdio
 ### Method 3: Local Development
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/lattice-hq-mcp.git
+git clone https://github.com/cyrilnoah1/lattice-hq-mcp.git
 cd lattice-hq-mcp
 
 # Install dependencies
@@ -216,6 +216,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 If you encounter any issues:
 
-1. Check the [GitHub Issues](https://github.com/your-username/lattice-hq-mcp/issues)
+1. Check the [GitHub Issues](https://github.com/cyrilnoah1/lattice-hq-mcp/issues)
 2. Create a new issue with details about your problem
 3. Include your Node.js version, operating system, and any error messages 
