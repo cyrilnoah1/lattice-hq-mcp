@@ -1,9 +1,13 @@
 const LATTICE_API_URL = process.env.LATTICE_API_URL;
 
-export interface LatticeApiResponse<T = any> {
-  data: T;
-  success: boolean;
-  message?: string;
+// Lattice list endpoints return a paginated envelope of this shape.
+// Singular endpoints (e.g. GET /v1/me, /v1/user/:id) return the resource
+// object directly at the root with no wrapper.
+export interface LatticeListResponse<T = any> {
+  object: "list";
+  data: T[];
+  hasMore: boolean;
+  endingCursor: string | null;
 }
 
 export interface User {
@@ -100,88 +104,81 @@ export class LatticeClient implements ILatticeClient {
 
   // User operations
   async getUsers(): Promise<User[]> {
-    const response = await this.makeRequest<LatticeApiResponse<User[]>>("/v1/users");
+    const response = await this.makeRequest<LatticeListResponse<User>>("/v1/users");
     return response.data;
   }
 
   async getUser(userId: string): Promise<User> {
-    const response = await this.makeRequest<LatticeApiResponse<User>>(`/v1/user/${userId}`);
-    return response.data;
+    return await this.makeRequest<User>(`/v1/user/${userId}`);
   }
 
   async getUserDirectReports(userId: string): Promise<User[]> {
-    const response = await this.makeRequest<LatticeApiResponse<User[]>>(`/v1/user/${userId}/directReports`);
+    const response = await this.makeRequest<LatticeListResponse<User>>(`/v1/user/${userId}/directReports`);
     return response.data;
   }
 
   // Goal operations
   async getGoals(): Promise<Goal[]> {
-    const response = await this.makeRequest<LatticeApiResponse<Goal[]>>("/v1/goals");
+    const response = await this.makeRequest<LatticeListResponse<Goal>>("/v1/goals");
     return response.data;
   }
 
   async getGoal(goalId: string): Promise<Goal> {
-    const response = await this.makeRequest<LatticeApiResponse<Goal>>(`/v1/goal/${goalId}`);
-    return response.data;
+    return await this.makeRequest<Goal>(`/v1/goal/${goalId}`);
   }
 
   async getUserGoals(userId: string): Promise<Goal[]> {
-    const response = await this.makeRequest<LatticeApiResponse<Goal[]>>(`/v1/user/${userId}/goals`);
+    const response = await this.makeRequest<LatticeListResponse<Goal>>(`/v1/user/${userId}/goals`);
     return response.data;
   }
 
   // Review Cycle operations
   async getReviewCycles(): Promise<ReviewCycle[]> {
-    const response = await this.makeRequest<LatticeApiResponse<ReviewCycle[]>>("/v1/reviewCycles");
+    const response = await this.makeRequest<LatticeListResponse<ReviewCycle>>("/v1/reviewCycles");
     return response.data;
   }
 
   async getReviewCycle(cycleId: string): Promise<ReviewCycle> {
-    const response = await this.makeRequest<LatticeApiResponse<ReviewCycle>>(`/v1/reviewCycle/${cycleId}`);
-    return response.data;
+    return await this.makeRequest<ReviewCycle>(`/v1/reviewCycle/${cycleId}`);
   }
 
   async getReviewCycleReviewees(cycleId: string): Promise<User[]> {
-    const response = await this.makeRequest<LatticeApiResponse<User[]>>(`/v1/reviewCycle/${cycleId}/reviewees`);
+    const response = await this.makeRequest<LatticeListResponse<User>>(`/v1/reviewCycle/${cycleId}/reviewees`);
     return response.data;
   }
 
   // Feedback operations
   async getFeedbacks(): Promise<Feedback[]> {
-    const response = await this.makeRequest<LatticeApiResponse<Feedback[]>>("/v1/feedbacks");
+    const response = await this.makeRequest<LatticeListResponse<Feedback>>("/v1/feedbacks");
     return response.data;
   }
 
   async getFeedback(feedbackId: string): Promise<Feedback> {
-    const response = await this.makeRequest<LatticeApiResponse<Feedback>>(`/v1/feedback/${feedbackId}`);
-    return response.data;
+    return await this.makeRequest<Feedback>(`/v1/feedback/${feedbackId}`);
   }
 
   // Department operations
   async getDepartments(): Promise<any[]> {
-    const response = await this.makeRequest<LatticeApiResponse<any[]>>("/v1/departments");
+    const response = await this.makeRequest<LatticeListResponse<any>>("/v1/departments");
     return response.data;
   }
 
   async getDepartment(departmentId: string): Promise<any> {
-    const response = await this.makeRequest<LatticeApiResponse<any>>(`/v1/department/${departmentId}`);
-    return response.data;
+    return await this.makeRequest<any>(`/v1/department/${departmentId}`);
   }
 
   // Updates operations
   async getUpdates(): Promise<any[]> {
-    const response = await this.makeRequest<LatticeApiResponse<any[]>>("/v1/updates");
+    const response = await this.makeRequest<LatticeListResponse<any>>("/v1/updates");
     return response.data;
   }
 
   async getUpdate(updateId: string): Promise<any> {
-    const response = await this.makeRequest<LatticeApiResponse<any>>(`/v1/update/${updateId}`);
-    return response.data;
+    return await this.makeRequest<any>(`/v1/update/${updateId}`);
   }
 
   // Get current user
   async getMe(): Promise<User> {
-    const response = await this.makeRequest<LatticeApiResponse<User>>("/v1/me");
-    return response.data;
+    return await this.makeRequest<User>("/v1/me");
   }
 } 
