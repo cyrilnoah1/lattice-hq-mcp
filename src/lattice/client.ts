@@ -1,8 +1,34 @@
 const LATTICE_API_URL = process.env.LATTICE_API_URL;
 
-// Lattice list endpoints return a paginated envelope of this shape.
-// Singular endpoints (e.g. GET /v1/me, /v1/user/:id) return the resource
-// object directly at the root with no wrapper.
+/**
+ * Lightweight reference to another resource — Lattice returns these
+ * (rather than inlining the full object) in fields like `manager`,
+ * `department`, `author`, etc. The `url` points at the full resource.
+ */
+export interface LatticeRef {
+  id: string;
+  object: string;
+  url: string;
+}
+
+/**
+ * A subresource pointer returned on parent objects (e.g. `tasks`,
+ * `customAttributes` on User). Only the URL is present — the data is
+ * not eagerly loaded and must be fetched separately if needed.
+ */
+export interface LatticeSubresourceRef {
+  object: "list";
+  url: string;
+}
+
+/**
+ * Lattice list endpoints return a paginated envelope of this shape.
+ * Singular endpoints (e.g. GET /v1/me, /v1/user/:id) return the resource
+ * object directly at the root with no wrapper.
+ *
+ * The same shape is also used for embedded lists that ARE eagerly loaded
+ * onto a parent object (e.g. `owners` on Goal, `targets` on Feedback).
+ */
 export interface LatticeListResponse<T = any> {
   object: "list";
   data: T[];
@@ -12,42 +38,124 @@ export interface LatticeListResponse<T = any> {
 
 export interface User {
   id: string;
+  object: "user";
+  url: string;
+  manager: LatticeRef | null;
+  directReports: LatticeSubresourceRef;
+  department: LatticeRef | null;
+  name: string;
+  preferredName: string | null;
   email: string;
-  firstName: string;
-  lastName: string;
-  title: string;
-  department: string;
-  managerId?: string;
-  isActive: boolean;
+  tasks: LatticeSubresourceRef;
+  title: string | null;
+  status: string;
+  startDate: string | null;
+  birthDate: string | null;
+  timezone: string | null;
+  gender: string | null;
+  isAdmin: boolean;
+  externalUserId: string | null;
+  createdAt: number;
+  updatedAt: number;
+  customAttributes: LatticeSubresourceRef;
 }
 
 export interface Goal {
   id: string;
-  title: string;
-  description: string;
-  userId: string;
-  status: string;
-  progress: number;
-  dueDate: string;
-  createdDate: string;
+  object: "goal";
+  url: string;
+  owners: LatticeListResponse<LatticeRef>;
+  department: LatticeRef | null;
+  parentGoal: LatticeRef | null;
+  childGoals: LatticeListResponse<LatticeRef>;
+  tags: LatticeListResponse<any>;
+  name: string;
+  description: string | null;
+  state: string;
+  status: string | null;
+  goalType: string;
+  priority: string | null;
+  amountType: string;
+  startingAmount: number;
+  endingAmount: number;
+  currentAmount: number;
+  isPrivate: boolean;
+  dueDate: string | null;
+  startDate: string | null;
+  lastUpdatedAt: number | null;
+  publishedAt: number | null;
+  completedAt: number | null;
+  archivedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
 }
 
 export interface ReviewCycle {
   id: string;
+  object: "reviewCycle";
+  url: string;
+  creator: LatticeRef;
+  reviewees: LatticeSubresourceRef;
+  reviews: LatticeSubresourceRef;
   name: string;
-  status: string;
-  startDate: string;
-  endDate: string;
-  type: string;
+  stage: string;
+  peerSelectionStartedAt: number | null;
+  reviewsStartedAt: number | null;
+  reviewsEndedAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+  autocalculatedWeightedScoresEnabled: boolean;
 }
 
 export interface Feedback {
   id: string;
-  content: string;
-  authorId: string;
-  recipientId: string;
-  type: string;
-  createdDate: string;
+  object: "feedback";
+  url: string;
+  author: LatticeRef;
+  targets: LatticeListResponse<LatticeRef>;
+  associatedValues: LatticeListResponse<any>;
+  feedbackRequest: LatticeRef | null;
+  body: string;
+  competency: string | null;
+  visibility: string;
+  isPublic: boolean;
+  createdAt: number;
+}
+
+export interface Department {
+  id: string;
+  object: "department";
+  url: string;
+  name: string;
+  description: string | null;
+  createdAt: number;
+}
+
+export interface UpdateResponse {
+  id: string;
+  object: "updateResponse";
+  question: string;
+  answer: string;
+}
+
+export interface SentimentResponse {
+  id: string;
+  object: "sentimentResponse";
+  rating: number;
+}
+
+export interface Update {
+  id: string;
+  object: "update";
+  url: string;
+  author: LatticeRef;
+  manager: LatticeRef | null;
+  responses: LatticeListResponse<UpdateResponse>;
+  sentiment: SentimentResponse | null;
+  isPublic: boolean;
+  publishedAt: number | null;
+  reviewedAt: number | null;
+  createdAt: number;
 }
 
 // Common interface for both real and mock clients
@@ -63,10 +171,10 @@ export interface ILatticeClient {
   getReviewCycleReviewees(cycleId: string): Promise<User[]>;
   getFeedbacks(): Promise<Feedback[]>;
   getFeedback(feedbackId: string): Promise<Feedback>;
-  getDepartments(): Promise<any[]>;
-  getDepartment(departmentId: string): Promise<any>;
-  getUpdates(): Promise<any[]>;
-  getUpdate(updateId: string): Promise<any>;
+  getDepartments(): Promise<Department[]>;
+  getDepartment(departmentId: string): Promise<Department>;
+  getUpdates(): Promise<Update[]>;
+  getUpdate(updateId: string): Promise<Update>;
   getMe(): Promise<User>;
 }
 
@@ -196,21 +304,21 @@ export class LatticeClient implements ILatticeClient {
   }
 
   // Department operations
-  async getDepartments(): Promise<any[]> {
-    return await this.fetchAllPages<any>("/v1/departments");
+  async getDepartments(): Promise<Department[]> {
+    return await this.fetchAllPages<Department>("/v1/departments");
   }
 
-  async getDepartment(departmentId: string): Promise<any> {
-    return await this.makeRequest<any>(`/v1/department/${departmentId}`);
+  async getDepartment(departmentId: string): Promise<Department> {
+    return await this.makeRequest<Department>(`/v1/department/${departmentId}`);
   }
 
   // Updates operations
-  async getUpdates(): Promise<any[]> {
-    return await this.fetchAllPages<any>("/v1/updates");
+  async getUpdates(): Promise<Update[]> {
+    return await this.fetchAllPages<Update>("/v1/updates");
   }
 
-  async getUpdate(updateId: string): Promise<any> {
-    return await this.makeRequest<any>(`/v1/update/${updateId}`);
+  async getUpdate(updateId: string): Promise<Update> {
+    return await this.makeRequest<Update>(`/v1/update/${updateId}`);
   }
 
   // Get current user
