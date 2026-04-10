@@ -158,6 +158,73 @@ export interface Update {
   createdAt: number;
 }
 
+export interface RatingScaleEntry {
+  value: number;
+  descriptor: string;
+}
+
+export interface ReviewResponse {
+  ratingString: string | null;
+  rating: number | null;
+  choices: string[] | null;
+  comment: string | null;
+  commentSentiment: number | null;
+  createdAt: number;
+  updatedAt: number;
+}
+
+export interface Review {
+  id: string;
+  object: "review";
+  url: string;
+  reviewee: LatticeRef;
+  reviewer: LatticeRef;
+  question: LatticeRef;
+  questionRevision: LatticeRef;
+  competency: LatticeRef | null;
+  goal: LatticeRef | null;
+  reviewType: string;
+  response: ReviewResponse | null;
+  calibratedResponse: ReviewResponse | null;
+  submittedAt: number | null;
+  declinedAt: number | null;
+  calibrationEnded: boolean;
+  parentReviewId: string | null;
+  isMostRecentDownwardReview: boolean | null;
+}
+
+export interface Reviewee {
+  id: string;
+  object: "reviewee";
+  url: string;
+  externalUserId: string | null;
+  reviewCycle: LatticeRef;
+  user: LatticeRef;
+  reviews: LatticeSubresourceRef;
+  revieweeFacingPDFUrl: string | null;
+  managerFacingPDFUrl: string | null;
+  closedAt: number | null;
+  esignatureGivenAt: number | null;
+  createdAt: number;
+  updatedAt: number;
+  responsesReleasedAt: number | null;
+  weightedScore: {
+    manual: number | null;
+    autoCalculated: number | null;
+  };
+}
+
+export interface Question {
+  id: string;
+  object: "question" | "questionRevision";
+  url: string;
+  body: string;
+  description: string | null;
+  hasFreeFormText?: boolean;
+  ratingScale: RatingScaleEntry[] | null;
+  choices: string[] | null;
+}
+
 // Common interface for both real and mock clients
 export interface ILatticeClient {
   getUsers(): Promise<User[]>;
@@ -168,7 +235,11 @@ export interface ILatticeClient {
   getUserGoals(userId: string): Promise<Goal[]>;
   getReviewCycles(): Promise<ReviewCycle[]>;
   getReviewCycle(cycleId: string): Promise<ReviewCycle>;
-  getReviewCycleReviewees(cycleId: string): Promise<User[]>;
+  getReviewCycleReviewees(cycleId: string): Promise<Reviewee[]>;
+  getReviewCycleReviews(cycleId: string): Promise<Review[]>;
+  getReviewee(revieweeId: string): Promise<Reviewee>;
+  getRevieweeReviews(revieweeId: string): Promise<Review[]>;
+  getQuestion(questionId: string): Promise<Question>;
   getFeedbacks(): Promise<Feedback[]>;
   getFeedback(feedbackId: string): Promise<Feedback>;
   getDepartments(): Promise<Department[]>;
@@ -290,8 +361,24 @@ export class LatticeClient implements ILatticeClient {
     return await this.makeRequest<ReviewCycle>(`/v1/reviewCycle/${cycleId}`);
   }
 
-  async getReviewCycleReviewees(cycleId: string): Promise<User[]> {
-    return await this.fetchAllPages<User>(`/v1/reviewCycle/${cycleId}/reviewees`);
+  async getReviewCycleReviewees(cycleId: string): Promise<Reviewee[]> {
+    return await this.fetchAllPages<Reviewee>(`/v1/reviewCycle/${cycleId}/reviewees`);
+  }
+
+  async getReviewCycleReviews(cycleId: string): Promise<Review[]> {
+    return await this.fetchAllPages<Review>(`/v1/reviewCycle/${cycleId}/reviews`);
+  }
+
+  async getReviewee(revieweeId: string): Promise<Reviewee> {
+    return await this.makeRequest<Reviewee>(`/v1/reviewee/${revieweeId}`);
+  }
+
+  async getRevieweeReviews(revieweeId: string): Promise<Review[]> {
+    return await this.fetchAllPages<Review>(`/v1/reviewee/${revieweeId}/reviews`);
+  }
+
+  async getQuestion(questionId: string): Promise<Question> {
+    return await this.makeRequest<Question>(`/v1/question/${questionId}`);
   }
 
   // Feedback operations
