@@ -159,6 +159,100 @@ export const getReviewCycleRevieweesTool: Tool = {
   },
 };
 
+// Review tools
+export interface GetReviewCycleReviewsArgs {
+  cycle_id: string;
+  review_type?: string;
+}
+
+export const getReviewCycleReviewsTool: Tool = {
+  name: "lattice_get_review_cycle_reviews",
+  description:
+    "Get all reviews for a specific review cycle. Each review contains the reviewer, reviewee, question reference, reviewType (e.g. 'Self', 'Downward', 'Peer', 'Upward'), and the response text/rating. Optionally filter by review_type (client-side). To get self-reviews, set review_type to 'Self'. For a specific person's reviews, prefer lattice_get_reviewee_reviews instead.",
+  inputSchema: {
+    type: "object",
+    required: ["cycle_id"],
+    properties: {
+      cycle_id: {
+        type: "string",
+        description: "The ID of the review cycle",
+      },
+      review_type: {
+        type: "string",
+        description:
+          "Optional filter: only return reviews of this type (e.g. 'Self', 'Downward', 'Peer', 'Upward'). Filtered client-side.",
+      },
+    },
+  },
+};
+
+export interface GetRevieweeArgs {
+  reviewee_id: string;
+}
+
+export const getRevieweeTool: Tool = {
+  name: "lattice_get_reviewee",
+  description:
+    "Get details of a specific reviewee by ID. A reviewee represents a user's participation in a specific review cycle, including their weighted score, PDF report URLs, and links to their reviews. The reviewee ID is found in review cycle reviewee lists or individual review objects.",
+  inputSchema: {
+    type: "object",
+    required: ["reviewee_id"],
+    properties: {
+      reviewee_id: {
+        type: "string",
+        description: "The ID of the reviewee to retrieve",
+      },
+    },
+  },
+};
+
+export interface GetRevieweeReviewsArgs {
+  reviewee_id: string;
+  review_type?: string;
+}
+
+export const getRevieweeReviewsTool: Tool = {
+  name: "lattice_get_reviewee_reviews",
+  description:
+    "Get all reviews for a specific reviewee. This is the most efficient way to get reviews for a single person in a cycle (rather than fetching all cycle reviews and filtering). Optionally filter by review_type. To get a user's self-reviews: first find their reviewee ID via lattice_get_review_cycle_reviewees, then call this with review_type='Self'.",
+  inputSchema: {
+    type: "object",
+    required: ["reviewee_id"],
+    properties: {
+      reviewee_id: {
+        type: "string",
+        description: "The ID of the reviewee",
+      },
+      review_type: {
+        type: "string",
+        description:
+          "Optional filter: only return reviews of this type (e.g. 'Self', 'Downward', 'Peer', 'Upward'). Filtered client-side.",
+      },
+    },
+  },
+};
+
+export interface GetQuestionArgs {
+  question_id: string;
+}
+
+export const getQuestionTool: Tool = {
+  name: "lattice_get_question",
+  description:
+    "Get a review question or question revision by ID. Returns the question body text, description, and rating scale (if applicable). Works with both question IDs (e.g. 'question-...') and question revision IDs (e.g. 'questionRevision-...'). Use this to see what was asked when viewing a review response.",
+  inputSchema: {
+    type: "object",
+    required: ["question_id"],
+    properties: {
+      question_id: {
+        type: "string",
+        description:
+          "The ID of the question or question revision to retrieve",
+      },
+    },
+  },
+};
+
 // Feedback tools
 export interface GetFeedbacksArgs {}
 
@@ -275,6 +369,10 @@ export const allTools = [
   getReviewCyclesTool,
   getReviewCycleTool,
   getReviewCycleRevieweesTool,
+  getReviewCycleReviewsTool,
+  getRevieweeTool,
+  getRevieweeReviewsTool,
+  getQuestionTool,
   getFeedbacksTool,
   getFeedbackTool,
   getDepartmentsTool,
@@ -399,6 +497,68 @@ export function createLatticeTools(client: ILatticeClient): ToolWithHandler[] {
           throw new Error("cycle_id is required");
         }
         const response = await client.getReviewCycleReviewees(args.cycle_id);
+        return {
+          content: [{ type: "text", text: JSON.stringify(response, null, 2) }],
+        };
+      },
+    },
+    {
+      name: "lattice_get_review_cycle_reviews",
+      description: getReviewCycleReviewsTool.description!,
+      inputSchema: getReviewCycleReviewsTool.inputSchema,
+      handler: async (args: GetReviewCycleReviewsArgs) => {
+        if (!args.cycle_id) {
+          throw new Error("cycle_id is required");
+        }
+        let reviews = await client.getReviewCycleReviews(args.cycle_id);
+        if (args.review_type) {
+          reviews = reviews.filter((r) => r.reviewType === args.review_type);
+        }
+        return {
+          content: [{ type: "text", text: JSON.stringify(reviews, null, 2) }],
+        };
+      },
+    },
+    {
+      name: "lattice_get_reviewee",
+      description: getRevieweeTool.description!,
+      inputSchema: getRevieweeTool.inputSchema,
+      handler: async (args: GetRevieweeArgs) => {
+        if (!args.reviewee_id) {
+          throw new Error("reviewee_id is required");
+        }
+        const response = await client.getReviewee(args.reviewee_id);
+        return {
+          content: [{ type: "text", text: JSON.stringify(response, null, 2) }],
+        };
+      },
+    },
+    {
+      name: "lattice_get_reviewee_reviews",
+      description: getRevieweeReviewsTool.description!,
+      inputSchema: getRevieweeReviewsTool.inputSchema,
+      handler: async (args: GetRevieweeReviewsArgs) => {
+        if (!args.reviewee_id) {
+          throw new Error("reviewee_id is required");
+        }
+        let reviews = await client.getRevieweeReviews(args.reviewee_id);
+        if (args.review_type) {
+          reviews = reviews.filter((r) => r.reviewType === args.review_type);
+        }
+        return {
+          content: [{ type: "text", text: JSON.stringify(reviews, null, 2) }],
+        };
+      },
+    },
+    {
+      name: "lattice_get_question",
+      description: getQuestionTool.description!,
+      inputSchema: getQuestionTool.inputSchema,
+      handler: async (args: GetQuestionArgs) => {
+        if (!args.question_id) {
+          throw new Error("question_id is required");
+        }
+        const response = await client.getQuestion(args.question_id);
         return {
           content: [{ type: "text", text: JSON.stringify(response, null, 2) }],
         };
