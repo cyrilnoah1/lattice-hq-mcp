@@ -102,10 +102,54 @@ export class LatticeClient implements ILatticeClient {
     return response.json();
   }
 
+  /**
+   * Fetch all pages of a Lattice list endpoint, following the cursor until
+   * `hasMore` is false. Lattice list endpoints default to `limit=10` and cap
+   * at `limit=100`; without this helper, callers would silently receive only
+   * the first 10 items of any collection.
+   *
+   * A MAX_PAGES safety rail caps runaway pagination (e.g. if the API returns
+   * `hasMore: true` indefinitely due to a bug). When the cap is hit, we log
+   * to stderr and return the items collected so far.
+   */
+  private async fetchAllPages<T>(endpoint: string): Promise<T[]> {
+    const PAGE_SIZE = 100;
+    const MAX_PAGES = 100; // safety rail: up to 10,000 items
+    const results: T[] = [];
+    let cursor: string | null = null;
+    let pageCount = 0;
+
+    do {
+      const params = new URLSearchParams({ limit: String(PAGE_SIZE) });
+      if (cursor) {
+        params.set("startingAfter", cursor);
+      }
+      const path = `${endpoint}?${params.toString()}`;
+
+      const page = await this.makeRequest<LatticeListResponse<T>>(path);
+      results.push(...page.data);
+      pageCount++;
+
+      if (!page.hasMore) {
+        cursor = null;
+        break;
+      }
+      cursor = page.endingCursor;
+
+      if (pageCount >= MAX_PAGES) {
+        console.error(
+          `⚠️  Lattice pagination: hit MAX_PAGES (${MAX_PAGES}) for ${endpoint}, returning ${results.length} items but more exist. Consider a narrower query.`
+        );
+        break;
+      }
+    } while (cursor);
+
+    return results;
+  }
+
   // User operations
   async getUsers(): Promise<User[]> {
-    const response = await this.makeRequest<LatticeListResponse<User>>("/v1/users");
-    return response.data;
+    return await this.fetchAllPages<User>("/v1/users");
   }
 
   async getUser(userId: string): Promise<User> {
@@ -113,14 +157,12 @@ export class LatticeClient implements ILatticeClient {
   }
 
   async getUserDirectReports(userId: string): Promise<User[]> {
-    const response = await this.makeRequest<LatticeListResponse<User>>(`/v1/user/${userId}/directReports`);
-    return response.data;
+    return await this.fetchAllPages<User>(`/v1/user/${userId}/directReports`);
   }
 
   // Goal operations
   async getGoals(): Promise<Goal[]> {
-    const response = await this.makeRequest<LatticeListResponse<Goal>>("/v1/goals");
-    return response.data;
+    return await this.fetchAllPages<Goal>("/v1/goals");
   }
 
   async getGoal(goalId: string): Promise<Goal> {
@@ -128,14 +170,12 @@ export class LatticeClient implements ILatticeClient {
   }
 
   async getUserGoals(userId: string): Promise<Goal[]> {
-    const response = await this.makeRequest<LatticeListResponse<Goal>>(`/v1/user/${userId}/goals`);
-    return response.data;
+    return await this.fetchAllPages<Goal>(`/v1/user/${userId}/goals`);
   }
 
   // Review Cycle operations
   async getReviewCycles(): Promise<ReviewCycle[]> {
-    const response = await this.makeRequest<LatticeListResponse<ReviewCycle>>("/v1/reviewCycles");
-    return response.data;
+    return await this.fetchAllPages<ReviewCycle>("/v1/reviewCycles");
   }
 
   async getReviewCycle(cycleId: string): Promise<ReviewCycle> {
@@ -143,14 +183,12 @@ export class LatticeClient implements ILatticeClient {
   }
 
   async getReviewCycleReviewees(cycleId: string): Promise<User[]> {
-    const response = await this.makeRequest<LatticeListResponse<User>>(`/v1/reviewCycle/${cycleId}/reviewees`);
-    return response.data;
+    return await this.fetchAllPages<User>(`/v1/reviewCycle/${cycleId}/reviewees`);
   }
 
   // Feedback operations
   async getFeedbacks(): Promise<Feedback[]> {
-    const response = await this.makeRequest<LatticeListResponse<Feedback>>("/v1/feedbacks");
-    return response.data;
+    return await this.fetchAllPages<Feedback>("/v1/feedbacks");
   }
 
   async getFeedback(feedbackId: string): Promise<Feedback> {
@@ -159,8 +197,7 @@ export class LatticeClient implements ILatticeClient {
 
   // Department operations
   async getDepartments(): Promise<any[]> {
-    const response = await this.makeRequest<LatticeListResponse<any>>("/v1/departments");
-    return response.data;
+    return await this.fetchAllPages<any>("/v1/departments");
   }
 
   async getDepartment(departmentId: string): Promise<any> {
@@ -169,8 +206,7 @@ export class LatticeClient implements ILatticeClient {
 
   // Updates operations
   async getUpdates(): Promise<any[]> {
-    const response = await this.makeRequest<LatticeListResponse<any>>("/v1/updates");
-    return response.data;
+    return await this.fetchAllPages<any>("/v1/updates");
   }
 
   async getUpdate(updateId: string): Promise<any> {
